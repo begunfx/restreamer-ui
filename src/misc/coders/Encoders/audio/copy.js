@@ -8,9 +8,12 @@ function createMapping(settings, stream, skills) {
 
 	const local = ['-codec:a', 'copy'];
 
-	//if (stream.codec === 'aac') {
-	//	local.push('-bsf:a', 'aac_adtstoasc');
-	//}
+	// Browsers reject ADTS AAC inside MPEG-TS / HLS without the ASC bitstream
+	// filter. Without this, video+audio channels play as "media could not be
+	// loaded" while video-only works (upstream #864).
+	if (stream.codec === 'aac') {
+		local.push('-bsf:a', 'aac_adtstoasc');
+	}
 
 	const mapping = {
 		global: [],

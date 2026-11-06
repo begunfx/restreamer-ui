@@ -37,9 +37,9 @@ function createGraph(settings) {
 		mapping.push(`ochl=${layout}`);
 	}
 
-	if (mapping.length === 0) {
-		return '';
-	}
+	// Stretch/squeeze samples to keep A/V in sync on long-running captures
+	// (USB/ALSA drift, upstream #936). Harmless when clocks already match.
+	mapping.push('async=1');
 
 	return 'aresample=' + mapping.join(':');
 }

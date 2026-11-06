@@ -42,8 +42,6 @@ function createMapping(settings, stream, skills) {
 		`${settings.bitrate}k`,
 		'-bufsize:v',
 		`${settings.bitrate}k`,
-		'-r',
-		`${settings.fps}`,
 		'-pix_fmt',
 		'yuv420p',
 		'-qp',
@@ -58,6 +56,8 @@ function createMapping(settings, stream, skills) {
 		`${settings.tile_columns}`,
 	];
 
+	Helper.AppendFramerateOptions(local, settings, skills);
+
 	if (settings.params.length !== 0) {
 		local.push('-rav1e-params', `${settings.params}`);
 	}
@@ -69,10 +69,6 @@ function createMapping(settings, stream, skills) {
 			'-keyint_min',
 			`${Math.round(parseInt(settings.fps) * parseInt(settings.gop)).toFixed(0)}`,
 		);
-	}
-
-	if (skills.ffmpeg.version_major >= 5) {
-		local.push('-fps_mode', `${settings.fps_mode}`);
 	}
 
 	const mapping = {

@@ -30,13 +30,13 @@ function createMapping(settings, stream, skills) {
 		`${settings.bitrate}k`,
 		'-bufsize:v',
 		`${settings.bitrate}k`,
-		'-r',
-		`${settings.fps}`,
 		'-sc_threshold',
 		'0',
 		'-pix_fmt',
 		'yuv420p',
 	];
+
+	Helper.AppendFramerateOptions(local, settings, skills);
 
 	if (settings.gop !== 'auto') {
 		local.push(
@@ -45,10 +45,6 @@ function createMapping(settings, stream, skills) {
 			'-keyint_min',
 			`${Math.round(parseInt(settings.fps) * parseInt(settings.gop)).toFixed(0)}`,
 		);
-	}
-
-	if (skills.ffmpeg.version_major >= 5) {
-		local.push('-fps_mode', `${settings.fps_mode}`);
 	}
 
 	const mapping = {

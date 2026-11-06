@@ -126,13 +126,22 @@ export default function Main(props) {
 
 		const progress = await props.restreamer.GetIngestProgress(_channelid);
 
+		// Keep the channel page mounted across transient process-state misses
+		// (token refresh, brief API blips). Flipping valid→false remounts the
+		// Welcome/setup screen and mutes the player (#863).
 		const state = {
 			...$state,
 			ready: true,
-			valid: progress.valid,
-			progress: progress,
-			state: progress.state,
+			valid: progress.valid === true ? true : $state.valid,
+			progress: progress.valid === true ? progress : $state.progress,
+			state: progress.valid === true ? progress.state : $state.state,
 		};
+
+		if (progress.valid !== true && $state.valid !== true) {
+			state.valid = false;
+			state.progress = progress;
+			state.state = progress.state;
+		}
 
 		if (state.state === 'connecting') {
 			if (state.onConnect === null) {

@@ -699,7 +699,7 @@ const createInputsOutputs = (sources, profiles, requireVideo = true) => {
 
 			const local = profile.audio.encoder.mapping.local.slice();
 
-			if (profile.audio.encoder.coder !== 'copy' && (profile.audio.filter.graph.length !== 0 || profile.audio.encoder.mapping.filter.length !== 0)) {
+			if (profile.audio.encoder.coder !== 'copy') {
 				let filter = profile.audio.filter.graph;
 				if (profile.audio.encoder.mapping.filter.length !== 0) {
 					if (filter.length !== 0) {
@@ -709,7 +709,17 @@ const createInputsOutputs = (sources, profiles, requireVideo = true) => {
 					filter += profile.audio.encoder.mapping.filter.join(',');
 				}
 
-				local.unshift('-filter:a', filter);
+				// Keep A/V clocks aligned on long captures (USB/ALSA drift, #936).
+				if (filter.indexOf('async=') === -1) {
+					if (filter.length !== 0) {
+						filter += ',';
+					}
+					filter += 'aresample=async=1';
+				}
+
+				if (filter.length !== 0) {
+					local.unshift('-filter:a', filter);
+				}
 			}
 
 			options.push('-map', index + ':' + stream.stream, ...local);
